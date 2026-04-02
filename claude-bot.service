@@ -1,0 +1,11 @@
+[Unit]
+Description=Claude Telegram Bot
+After=network.target
+
+[Service]
+ExecStart=/bin/bash /root/claude_bot/start.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
