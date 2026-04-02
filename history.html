@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Диалоги с Клодом — История проектов</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #ffffff0f;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --accent3: #43e97b;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --tag-bg: #ffffff08;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Golos Text', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: -10%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, #6c63ff18 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -20%;
+    right: -10%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(ellipse, #ff658418 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* Header */
+  header {
+    padding: 60px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .header-inner { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .logo { display: flex; align-items: center; gap: 16px; }
+  .logo-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 0 30px #6c63ff40;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(32px, 5vw, 52px);
+    letter-spacing: 2px;
+    line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, #6c63ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  .stats { display: flex; gap: 24px; flex-wrap: wrap; }
+  .stat { text-align: right; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    line-height: 1;
+    color: var(--accent);
+  }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Search & filter */
+  .controls {
+    display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; align-items: center;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; }
+  .search-wrap input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 16px 12px 44px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap::before {
+    content: '🔍';
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 16px; pointer-events: none;
+  }
+  .filter-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 12px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #6c63ff12;
+  }
+
+  /* Grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all .25s ease;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp .5s ease both;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--card-accent, var(--accent)), transparent);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .card:hover { transform: translateY(-4px); border-color: #ffffff1a; box-shadow: 0 20px 60px #00000060; }
+  .card:hover::before { opacity: 1; }
+
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .card-emoji { font-size: 28px; line-height: 1; flex-shrink: 0; }
+  .card-date { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+  .card-title {
+    font-size: 16px; font-weight: 700;
+    line-height: 1.3; margin-bottom: 10px;
+    color: var(--text);
+  }
+  .card-summary {
+    font-size: 13px; line-height: 1.6;
+    color: var(--muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+  .tag {
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+  }
+  .card-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 16px;
+    color: var(--accent);
+    font-size: 13px; font-weight: 600;
+    text-decoration: none;
+    opacity: 0; transform: translateY(4px);
+    transition: all .2s;
+  }
+  .card:hover .card-link { opacity: 1; transform: translateY(0); }
+
+  /* Category colors */
+  .cat-ferma { --card-accent: #43e97b; }
+  .cat-obshchee { --card-accent: #6c63ff; }
+  .cat-sudya { --card-accent: #f7971e; }
+  .cat-lzt { --card-accent: #ff6584; }
+  .cat-ielts { --card-accent: #4facfe; }
+  .cat-infra { --card-accent: #a8edea; }
+  .cat-other { --card-accent: #c2c2c2; }
+
+  .cat-ferma .tag.main { background: #43e97b18; border-color: #43e97b40; color: #43e97b; }
+  .cat-obshchee .tag.main { background: #6c63ff18; border-color: #6c63ff40; color: #6c63ff; }
+  .cat-sudya .tag.main { background: #f7971e18; border-color: #f7971e40; color: #f7971e; }
+  .cat-lzt .tag.main { background: #ff658418; border-color: #ff658440; color: #ff6584; }
+  .cat-ielts .tag.main { background: #4facfe18; border-color: #4facfe40; color: #4facfe; }
+  .cat-infra .tag.main { background: #a8edea18; border-color: #a8edea40; color: #a8edea; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: #00000090;
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--card);
+    border: 1px solid #ffffff18;
+    border-radius: 20px;
+    max-width: 680px; width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 32px;
+    transform: translateY(20px);
+    transition: transform .3s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--muted); width: 32px; height: 32px;
+    border-radius: 8px; cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-emoji { font-size: 48px; margin-bottom: 12px; }
+  .modal-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .modal-date { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .modal-body { font-size: 14px; line-height: 1.8; color: #b0b0c0; }
+  .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #fff;
+    padding: 12px 20px; border-radius: 10px;
+    text-decoration: none; font-size: 14px; font-weight: 600;
+    transition: opacity .2s;
+  }
+  .btn-primary:hover { opacity: .85; }
+  .btn-sec {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border);
+    padding: 12px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: border-color .2s;
+    font-family: inherit;
+  }
+  .btn-sec:hover { border-color: var(--accent); color: var(--accent); }
+
+  .empty { text-align: center; padding: 80px 20px; color: var(--muted); font-size: 16px; }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+
+  @media (max-width: 600px) {
+    .stats { display: none; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">🧠</div>
+        <div>
+          <h1>История диалогов</h1>
+          <div class="subtitle">Все проекты с Клодом · Анатолий</div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-num" id="total-count">19</div><div class="stat-label">Диалогов</div></div>
+        <div class="stat"><div class="stat-num" id="proj-count">6</div><div class="stat-label">Проектов</div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <input type="text" id="search" placeholder="Поиск по диалогам..." oninput="filterCards()">
+    </div>
+    <button class="filter-btn active" onclick="setFilter('all', this)">Все</button>
+    <button class="filter-btn" onclick="setFilter('ferma', this)">🌾 ФЕРМА</button>
+    <button class="filter-btn" onclick="setFilter('obshchee', this)">🤝 Общее Дело</button>
+    <button class="filter-btn" onclick="setFilter('sudya', this)">⚖️ Помощник судьи</button>
+    <button class="filter-btn" onclick="setFilter('lzt', this)">🤖 LZT/Автопилот</button>
+    <button class="filter-btn" onclick="setFilter('infra', this)">🖥 Инфра</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">
+    <div class="empty-icon">🔍</div>
+    Ничего не найдено
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div class="modal-emoji" id="m-emoji"></div>
+    <div class="modal-title" id="m-title"></div>
+    <div class="modal-date" id="m-date"></div>
+    <div class="modal-body" id="m-body"></div>
+    <div class="modal-actions" id="m-actions"></div>
+  </div>
+</div>
+
+<script>
+const CHATS = [
+  {
+    id: 1, cat: 'ferma',
+    emoji: '🌾',
+    title: 'ФЕРМА — Инвайтер Telegram',
+    date: '2 апр 2026',
+    url: 'https://claude.ai/chat/eaf9199a-2aa6-4673-b7f7-e6b8a5b194ba',
+    tags: ['TeleRaptor', 'aiogram', 'Google Sheets', 'Python'],
+    summary: 'Система массовых инвайтов через TeleRaptor. Парсинг лога C:\\cmd3.log, запись в Google Sheets с цветовой кодировкой. Исправлена блокировка event loop и краш от мёртвого прокси.',
+    full: 'Проект ФЕРМА для массовых инвайтов через TeleRaptor. Бот на aiogram v2, парсинг лога C:\\cmd3.log (regex «добавлено X человек»), запись в Google Sheets с цветовой кодировкой. Исправлены: блокировка event loop (через run_in_executor), краш от мёртвого прокси (bat-скрипт автоперезапуска). Финальные файлы: __main__.py и google_sheets_work.py.'
+  },
+  {
+    id: 2, cat: 'ferma',
+    emoji: '📱',
+    title: 'ФЕРМА — Apps Script + Android ADB',
+    date: '30 мар 2026',
+    url: 'https://claude.ai/chat/3d28d525-d70a-4e8b-b5e3-514a7f36e50c',
+    tags: ['ADB', 'Apps Script', 'Google Sheets', 'Python/tkinter'],
+    summary: 'Android-ферма на ADB. Google Apps Script для таблицы РОЗАЛИНД. Авторизация в Макс и Telegram через ADB. TUN2TAP прокси. Два тестовых SIM-устройства.',
+    full: 'Комплексная система управления Android-устройствами через ADB (Python/tkinter). Apps Script бэкенд для Google Sheets "РОЗАЛИНД" (читает номера из колонки C, пишет IP в P). Автоматизация авторизации в Макс (ru.oneme.app) и Telegram через ADB, TUN2TAP прокси. Тестовые устройства: 79232593467 и 79231612074, IP 192.168.0.102.'
+  },
+  {
+    id: 3, cat: 'ferma',
+    emoji: '🤖',
+    title: 'ФЕРМА — Бот управления аккаунтами MAX',
+    date: '30 мар 2026',
+    url: 'https://claude.ai/chat/1ba35cba-7907-4e95-911b-92f44e17af26',
+    tags: ['Telegram Bot', 'SQLite', 'Python', 'ZIP/RAR'],
+    summary: 'Бот для приёма архивов от воркеров. Мониторинг папки reports, автозачисление оплаты за успешные аккаунты. Конфиг в config.json, автозапуск через Task Scheduler.',
+    full: 'Telegram-бот на Python. Принимает ZIP/RAR архивы от воркеров, распаковывает аккаунты, мониторит папку reports на появление строк "account_name OK". Автоматически зачисляет payment_per_action воркеру в SQLite. Конфиг в config.json. Автозапуск через Task Scheduler (pythonw без окна). Команда /reprocess для повторной обработки логов.'
+  },
+  {
+    id: 4, cat: 'lzt',
+    emoji: '⚡',
+    title: 'LZT Autopilot — автозакупка аккаунтов',
+    date: '30 мар 2026',
+    url: 'https://claude.ai/chat/d8e40f5f-2849-47ae-9fc0-7771c6c4732e',
+    tags: ['LZT Market', 'share-access.ru', 'Telegram Bot', 'Python', 'Веб-дашборд'],
+    summary: 'Система автозакупки Telegram-аккаунтов с LZT Market и отправки на share-access.ru. Веб-дашборд (порт 5050) с вкладками: лог, GEO/рейтинг, продавцы, рассылка, инвайты.',
+    full: 'Полный автопилот: покупает аккаунты Telegram с LZT Market (фильтр: origin[]=phishing&nsb=1&spam=no), упаковывает в ZIP, отправляет на share-access.ru. Веб-дашборд порт 5050. Telegram-бот парсит отчёты (chat_id 5805887204) и инвайт-логи (канал -1001921115967). Финансовая панель с SVG-спидометром. Windows autostart через registry.'
+  },
+  {
+    id: 5, cat: 'infra',
+    emoji: '🔧',
+    title: 'MTProxy на серверах ITLDC',
+    date: '30 мар 2026',
+    url: 'https://claude.ai/chat/322cbff2-5e14-4521-ba92-3108fe079095',
+    tags: ['MTProxy', 'Ubuntu', 'Telegram', 'VPS'],
+    summary: 'Настройка MTProxy (mtg v2.1.7) на серверах GREEN FLOID LLC (AS59729). Серверы 195.123.228.234 и 195.123.226.92, порт 8443. SOCKS5 заблокирован Telegram для datacenter IP.',
+    full: 'Все серверы на ASN GREEN FLOID LLC (AS59729), datacenter IP заблокированы Telegram для SOCKS5. MTProxy поднят на 195.123.228.234 (порт 8443) и 195.123.226.92 (порт 8443). Пользователь botadmin на vds-984413. Проекты под /home/botadmin: creater_posts, pupper/tg_marionetka, ban_users.'
+  },
+  {
+    id: 6, cat: 'obshchee',
+    emoji: '🤝',
+    title: 'Общее Дело — краудинвест платформа',
+    date: '2 апр 2026',
+    url: 'https://claude.ai/chat/189a4db8-d97f-4ae4-bf92-06e6c53eca20',
+    tags: ['FastAPI', 'React', 'Nginx', 'SQLite', 'GitHub'],
+    summary: 'Полный стек: FastAPI бэкенд + React фронтенд + Nginx. VPS 85.90.197.57. GitHub репо obshchee-delo. Автодеплой через update.sh. Инвесторы, дивиденды, портфель.',
+    full: 'Краудинвестиционная платформа. FastAPI + SQLite + JWT авторизация. React + Vite фронтенд с glassmorphism картами и анимациями (Space Grotesk, fadeUp, shimmer, float). Nginx reverse proxy. VPS 85.90.197.57. GitHub leoneedmoregit/obshchee-delo (приватный). Обновление: curl | bash update.sh. Функции: создание проектов с долями, дивиденды по расписанию, портфель инвестора, история транзакций.'
+  },
+  {
+    id: 7, cat: 'sudya',
+    emoji: '⚖️',
+    title: 'Помощник судьи — email рассылка',
+    date: '30 мар 2026',
+    url: 'https://claude.ai/chat/0cf0c719-1b8f-4bb1-8d7d-6bb6ad046dd2',
+    tags: ['Email', 'Python парсер', 'sudrf.ru', 'промокод'],
+    summary: 'Email-рассылка по ~210 адресам судов. Парсер sudrf.ru. Промокод НЕТЗАВАЛАМ (5 бесплатных дел). Яндекс.Директ признан нерентабельным.',
+    full: 'Стратегия email-аутрич к судьям. CSV ~210 адресов судов по всей России. Python-парсер для сбора email с sudrf.ru (формат courtname.regioncode@sudrf.ru). Три варианта письма. Промокод НЕТЗАВАЛАМ — 5 бесплатных дел. Яндекс.Директ нерентабелен. Приоритет: email + Telegram-сообщество ~3500 судей.'
+  },
+  {
+    id: 8, cat: 'sudya',
+    emoji: '🏛',
+    title: 'Помощник судьи — стратегия дистрибуции',
+    date: '2 апр 2026',
+    url: 'https://claude.ai/chat/08db4cbd-7758-48d5-9400-5120e3f5d6d1',
+    tags: ['B2G продажи', 'Реестр ПО', '44-ФЗ', 'УСД'],
+    summary: 'Путь в каждый суд как КонсультантПлюс. Реестр российского ПО. Судебный департамент. Продажа лицензии на суд (не на судью). ~264 пользователя, 85 активных.',
+    full: 'Стратегия дистрибуции: Судебный департамент при ВС РФ → централизованная закупка. Реестр российского ПО (обязателен для госзакупок). Замена DeepSeek на российскую модель для 44-ФЗ. Пилот в 2-3 судах → рекомендация председателей. Продажа пакета на суд 40-80K₽/мес вместо подписки на судью. ~264 зарегистрированных, 85 активных за 30 дней.'
+  },
+  {
+    id: 9, cat: 'sudya',
+    emoji: '📊',
+    title: 'Помощник судьи — архитектура OCR + AI',
+    date: '29 мар 2026',
+    url: 'https://claude.ai/chat/8651598c-239a-452c-a1a9-c758f01a0fe2',
+    tags: ['OCR', 'DeepSeek', 'RAG', 'Архитектура'],
+    summary: '5 вариантов архитектуры для доработки решений после OCR. Рекомендован гибрид вариантов 1+4: весь OCR для малых дел + мини-запрос DeepSeek для больших.',
+    full: 'Варианты архитектуры умного refine: 1) Весь OCR всегда (100% качество, дорого), 2) Extracted данные (70%, дёшево), 3) Keyword поиск (80%), 4) DeepSeek мини-запрос (95%, 0.01₽), 5) Векторный поиск RAG (98%, нужна инфра). Рекомендуемый гибрид: малые дела < 300К символов → весь OCR, большие → мини-запрос выбирает документы. Судьи подтверждают качество решений.'
+  },
+  {
+    id: 10, cat: 'sudya',
+    emoji: '📍',
+    title: 'Геотаргетинг судов в Яндекс.Директ',
+    date: '29 мар 2026',
+    url: 'https://claude.ai/chat/14c1e55a-7f87-43c9-9736-be72f1a05649',
+    tags: ['Яндекс.Директ', 'Геотаргетинг', 'Москва', '43 адреса'],
+    summary: '43 адреса московских судебных органов для геотаргетинга. ВС РФ, Судебный департамент, Совет судей, все 35 районных судов Москвы.',
+    full: '43 уникальных адреса: Верховный Суд, Судебный департамент, ВККС, РГУП, Мосгорсуд + все 35 районных судов Москвы. Формат: город + улица + дом для Яндекс.Директ. Замечания: Головинский и Коптевский в одном здании, Зюзинский и Черёмушкинский в одном комплексе, Баррикадная 8 — три органа.'
+  },
+  {
+    id: 11, cat: 'sudya',
+    emoji: '📧',
+    title: 'Сбор контактов судей',
+    date: '29 мар 2026',
+    url: 'https://claude.ai/chat/0d7d7e16-2eec-4736-96d5-df4b681b97cd',
+    tags: ['OSINT', 'sudrf.ru', 'Парсинг', 'Email база'],
+    summary: 'Парсинг базы контактов судов. Официальные телефоны канцелярий с sudrf.ru. Email всех судов РФ. Стратегия outreach через помощников и председателей.',
+    full: 'Сбор базы контактов для продвижения помощник-судьи.рф. Источники: ГАС "Правосудие" (sudrf.ru), сайты судов, кадровая комиссия при Президенте. Личные мобильные судей не публикуются. Рабочая схема: телефоны канцелярий + email судов → outreach через секретарей. Ретаргетинг: look-alike по существующим пользователям.'
+  },
+  {
+    id: 12, cat: 'ferma',
+    emoji: '🕵️',
+    title: 'Лидогенератор — мониторинг Telegram чатов',
+    date: '2 апр 2026',
+    url: 'https://claude.ai/chat/5c4e5c5d-1418-4eac-aae3-fb6f416f0a71',
+    tags: ['Telethon', 'Мониторинг', 'Ключевые слова', 'Веб-панель'],
+    summary: 'Система мониторинга Telegram чатов по ключевым словам. Аккаунты подписываются на чаты, мониторят, пересылают совпадения. React-панель управления.',
+    full: 'Система: аккаунты подписываются на указанные чаты/каналы (1 аккаунт = 1 чат), мониторят сообщения, при совпадении с ключевым словом — пересылают в целевой чат с юзернеймом, названием источника, ссылкой. БД хранит привязки, если аккаунт слетел — другой подхватывает. Веб-панель: дашборд, аккаунты, ключевые слова, лиды, настройки.'
+  },
+  {
+    id: 13, cat: 'infra',
+    emoji: '🤖',
+    title: 'Claude Telegram Bot — этот проект',
+    date: '2 апр 2026',
+    url: 'https://claude.ai/chat/fe0351e7-b18c-4d30-a0e5-6ef51cfc1a34',
+    tags: ['aiogram', 'Claude API', 'Systemd', 'GitHub'],
+    summary: 'Telegram-бот с Claude внутри. Inline-кнопки, история диалогов, системный промпт, управление доступом. SSH-инструменты для управления серверами.',
+    full: 'Telegram-бот с claude-opus-4-5. Суперадмины: 270589758 и 108863518. Inline-клавиатура: история, меню, серверы. SSH через paramiko для управления серверами прямо из чата. GitHub: leoneedmoregit/claude-tg-bot. Автозапуск через systemd на 195.123.228.234. История сохраняется в histories.json на сервере.'
+  },
+  {
+    id: 14, cat: 'other',
+    emoji: '🎓',
+    title: 'IELTS Buddy — бот практики Speaking',
+    date: '30 мар 2026',
+    url: 'https://claude.ai/chat/0fe336fd-27c9-4541-93c9-f9db37f4733e',
+    tags: ['Groq', 'Whisper', 'edge-tts', 'Replit'],
+    summary: 'Telegram-бот для подготовки к IELTS Speaking. Groq Whisper для STT, llama-3.3-70b для оценки, edge-tts для ответа голосом. 3 дня бесплатно, потом пейволл.',
+    full: 'Стек: Groq API (Whisper large-v3 + llama-3.3-70b-versatile), edge-tts (en-GB-SoniaNeural). Хостинг на Replit. Оценка по IELTS Band Descriptors: Fluency & Coherence, Lexical Resource, Grammar, Pronunciation. Зачёркнутые ошибки в HTML + голосовой ответ + модельный ответ. Монетизация: 3 дня free trial → paywall.'
+  },
+  {
+    id: 15, cat: 'infra',
+    emoji: '💾',
+    title: 'СХД Hitachi Vantara — оценка и каталог',
+    date: '29 мар 2026',
+    url: 'https://claude.ai/chat/f34b8785-ccca-4a32-a5cd-7a594a95157b',
+    tags: ['Hitachi', 'VSP G900', 'VSP G1000', '2.6 ПБ'],
+    summary: '9 систем ~2.6 ПБ в ПБ ИТАКОМ. Ликвидационная 120-200 млн ₽, рыночная 250-400 млн ₽, разборка 310-550 млн ₽. Спецификация без адресов поставщика.',
+    full: 'Hitachi Vantara: VSP G900 (2 конфига), VSP 5500H, VSP G1000, HUS VM x2 (336 HDD), HUS VM x3 (240 HDD). Итого ~2.6 ПБ. Оценка: ликвидационная 120-200 млн ₽, рыночная 250-400 млн ₽, разборка 310-550 млн ₽. Клиентская спецификация DOCX без адресов поставщика. Хранится в ПБ ИТАКОМ.'
+  },
+  {
+    id: 16, cat: 'infra',
+    emoji: '📋',
+    title: 'УСН декларация ИП — уточнёнка',
+    date: '31 мар 2026',
+    url: 'https://claude.ai/chat/644c283c-53fa-4352-b8ff-ff2b4619e734',
+    tags: ['УСН', 'ИП', 'Декларация', 'НК РФ'],
+    summary: 'Уточнённая декларация УСН за 2025 год. Сначала страховые взносы → уменьшить налог → подать корректировку → оплатить остаток до 28 апреля 2026.',
+    full: 'Ситуация: подана неверная декларация с заниженной суммой налога. Решение: подать уточнённую декларацию (номер корректировки "1"), сначала уплатить страховые взносы для уменьшения налога, затем оплатить остаток до 28.04.2026. По ст.81 НК РФ штраф избежен т.к. срок уплаты ещё не наступил. ИП на УСН "Доходы".'
+  },
+  {
+    id: 17, cat: 'other',
+    emoji: '🎨',
+    title: 'Гайд по сотрудничеству с брендами',
+    date: '2 апр 2026',
+    url: 'https://claude.ai/chat/fe0351e7-b18c-4d30-a0e5-6ef51cfc1a34',
+    tags: ['Контент', 'UGC', 'Гайд', 'Лендинг'],
+    summary: 'Гайд-воркбук "Как начать сотрудничать с брендами". Доработка текста, лендинг с оплатой через ЮКассу, оферта и политика конфиденциальности.',
+    full: 'Воркбук по сотрудничеству с брендами: упаковка профиля, визуальный контент, форматы (UGC, распаковки, обзоры), искренность, видимость. Продажа за 990₽. Лендинг на HTML с кнопкой ЮКассы. Оферта и политика конфиденциальности. Публикации: Vois, Moevir Paris, Quadro Magazine, Penida Magazine.'
+  },
+  {
+    id: 18, cat: 'infra',
+    emoji: '🖥',
+    title: 'Telegram бот управления серверами',
+    date: '2 апр 2026',
+    url: 'https://claude.ai/chat/fe0351e7-b18c-4d30-a0e5-6ef51cfc1a34',
+    tags: ['paramiko', 'SSH', 'systemctl', 'Inline-кнопки'],
+    summary: 'Расширение Claude-бота SSH-инструментами. Статус сервисов, логи, рестарт, мониторинг дисков и произвольные команды — всё из Telegram.',
+    full: 'Бот с SSH через paramiko. Поддерживаемые серверы: ФЕРМА (195.123.228.234) и Общее Дело (85.90.197.57). Команды из Telegram: статус сервисов (🟢/🔴), просмотр логов (journalctl -n 30), рестарт через systemctl, проверка диска (df -h), произвольная bash-команда. Вся аутентификация через пароли из переменных окружения.'
+  },
+];
+
+let activeFilter = 'all';
+
+function renderCards(list) {
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  grid.innerHTML = '';
+  if (!list.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  list.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = `card cat-${c.cat}`;
+    div.style.animationDelay = `${i * 0.05}s`;
+    div.onclick = () => openModal(c);
+    div.innerHTML = `
+      <div class="card-header">
+        <div class="card-emoji">${c.emoji}</div>
+        <div class="card-date">${c.date}</div>
+      </div>
+      <div class="card-title">${c.title}</div>
+      <div class="card-summary">${c.summary}</div>
+      <div class="card-tags">
+        ${c.tags.map((t,i) => `<span class="tag${i===0?' main':''}">${t}</span>`).join('')}
+      </div>
+      <a class="card-link" href="${c.url}" target="_blank" onclick="e=>e.stopPropagation()">
+        Открыть диалог →
+      </a>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function filterCards() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const list = CHATS.filter(c => {
+    const matchCat = activeFilter === 'all' || c.cat === activeFilter;
+    const matchQ = !q || c.title.toLowerCase().includes(q) || c.summary.toLowerCase().includes(q) || c.tags.join(' ').toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+  renderCards(list);
+}
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCards();
+}
+
+function openModal(c) {
+  document.getElementById('m-emoji').textContent = c.emoji;
+  document.getElementById('m-title').textContent = c.title;
+  document.getElementById('m-date').textContent = c.date + ' · ' + c.tags.join(', ');
+  document.getElementById('m-body').textContent = c.full;
+  document.getElementById('m-actions').innerHTML = `
+    <a class="btn-primary" href="${c.url}" target="_blank">↗ Открыть диалог</a>
+    <button class="btn-sec" onclick="closeModalBtn()">Закрыть</button>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) closeModalBtn();
+}
+function closeModalBtn() {
+  document.getElementById('modal').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalBtn(); });
+
+renderCards(CHATS);
+</script>
+</body>
+</html>
