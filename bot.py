@@ -5,7 +5,7 @@ from telegram.ext import (
     ApplicationBuilder, MessageHandler, CommandHandler,
     CallbackQueryHandler, filters, ContextTypes
 )
-import anthropic
+from openai import OpenAI
 
 # ─── КОНФИГ ───────────────────────────────────────────────────────────────────
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
@@ -69,7 +69,10 @@ def save_histories(h):
 
 admins    = load_admins() | SUPER_ADMINS
 histories = load_histories()
-client    = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+client    = OpenAI(
+    api_key=ANTHROPIC_KEY,
+    base_url="https://openrouter.ai/api/v1"
+)
 
 # ─── ХЕЛПЕРЫ ──────────────────────────────────────────────────────────────────
 def is_admin(uid): return uid in admins or uid in SUPER_ADMINS
@@ -485,13 +488,12 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     await update.message.chat.send_action("typing")
 
     try:
-        response = client.messages.create(
-            model="claude-opus-4-5",
+        response = client.chat.completions.create(
+            model="anthropic/claude-sonnet-4-5",
             max_tokens=2000,
-            system=system_prompt,
-            messages=messages
+            messages=[{"role": "system", "content": system_prompt}] + messages
         )
-        reply = response.content[0].text
+        reply = response.choices[0].message.content
     except Exception as e:
         await update.message.reply_text(f"❌ Ошибка API: `{e}`", parse_mode="Markdown")
         return
